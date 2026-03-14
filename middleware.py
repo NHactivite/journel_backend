@@ -1,10 +1,11 @@
-from fastapi import Request, HTTPException, Cookie
-from jose import jwt
+import jwt                                        # ← PyJWT
+from jwt.exceptions import InvalidTokenError      # ← PyJWT exception
+from fastapi import HTTPException, Cookie
 from typing import Optional
 import os
 
-SECRET_KEY  = os.getenv("SECRET_KEY", "fallback-key")
-ALGORITHM   = os.getenv("ALGORITHM", "HS256")
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback-key")
+ALGORITHM  = os.getenv("ALGORITHM", "HS256")
 
 def get_current_user(token: Optional[str] = Cookie(default=None)) -> dict:
     """
@@ -23,5 +24,5 @@ def get_current_user(token: Optional[str] = Cookie(default=None)) -> dict:
             "userId": payload.get("userId"),
             "email":  payload.get("email"),
         }
-    except Exception:
+    except InvalidTokenError:                     # ← was: except Exception
         raise HTTPException(status_code=401, detail="Invalid or expired token")
